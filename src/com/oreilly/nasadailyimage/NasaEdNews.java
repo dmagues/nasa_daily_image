@@ -1,6 +1,5 @@
 package com.oreilly.nasadailyimage;
 
-
 /**
  * NasaEdNews
  * This class is the central class for the fragment for the News Of The Day
@@ -23,64 +22,75 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-
 public class NasaEdNews extends ListFragment {
 
-        private static final String URL = "http://www.nasa.gov/rss/educationnews.rss";
-        @SuppressWarnings("unused")
-        private Handler handler;
-        private ArrayList<NewsItem> list = new ArrayList<EdNewsHandler.NewsItem>();
-        static private EdNewsAdapter listAdapter;
+	private static final String URL = "http://www.nasa.gov/rss/educationnews.rss";
+	@SuppressWarnings("unused")
+	private Handler handler;
+	private ArrayList<NewsItem> list = new ArrayList<EdNewsHandler.NewsItem>();
+	static private EdNewsAdapter listAdapter;
 
-        public ArrayList<NewsItem> getValues() {
-                return list;
-        }
+	public ArrayList<NewsItem> getValues() {
+		return list;
+	}
 
-        public void setValues(ArrayList<NewsItem> values) {
-                this.list = values;
-        }
+	public void setValues(ArrayList<NewsItem> values) {
+		this.list = values;
+	}
 
-        public void onCreate(Bundle savedInstanceState) {
-                super.onCreate(savedInstanceState);
-                handler = new Handler();
-        }
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		handler = new Handler();
+	}
 
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                        Bundle savedInstanceState) {
-                View view = inflater.inflate(R.layout.fragment_ed_news, container, false);
-                return view;
-        }
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.fragment_ed_news, container,
+				false);
+		return view;
+	}
 
-        public void onStart() {
-                super.onStart();
-        }
+	public void onStart() {
+		super.onStart();
+	}
 
-        public void onActivityCreated(Bundle savedInstanceState) {
-                super.onActivityCreated(savedInstanceState);
-                refreshFromFeed();
-                listAdapter = new EdNewsAdapter(getActivity(), R.layout.ed_news_item,
-                                getValues());
-                setListAdapter(listAdapter);
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		refreshFromFeed();
+		listAdapter = new EdNewsAdapter(getActivity(), R.layout.ed_news_item,
+				getValues());
+		setListAdapter(listAdapter);
 
-        }
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(android.view.MenuItem item) {
+		switch(item.getItemId())
+		{
+		case R.id.action_refresh:
+			refreshFromFeed();
+			return true;		
+		default:
+			return super.onOptionsItemSelected(item);
+		}	
+	};
 
-        private void refreshFromFeed() {
-                Thread th = new Thread(new Runnable() {
-                        public void run() {
-                                EdNewsHandler edNewsHandler = new EdNewsHandler();
-                                try {
-                                        edNewsHandler.processFeed(getActivity(), new URL(URL));
-                                        setValues(edNewsHandler.getNewsItemList());
-                                        listAdapter.setNewsItemList(getValues());
-                                        listAdapter.notifyDataSetChanged();
-                                } catch (Exception e) {
-                                        e.printStackTrace();
-                                }
-                        }
-                });
-                th.start();
+	private void refreshFromFeed() {
+		Thread th = new Thread(new Runnable() {
+			public void run() {
+				EdNewsHandler edNewsHandler = new EdNewsHandler();
+				try {
+					edNewsHandler.processFeed(getActivity(), new URL(URL));
+					setValues(edNewsHandler.getNewsItemList());
+					listAdapter.setNewsItemList(getValues());
+					listAdapter.notifyDataSetChanged();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		th.start();
 
-        }
-        
-        
+	}
+
 }
