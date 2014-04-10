@@ -3,9 +3,9 @@
 
     <string name="app_name">Nasa Daily Image</string>
     <string name="action_settings">Settings</string>
-    <string name="test_image_title">Martian Dunes Flying in Formation</string>
-    <string name="test_image_date">Wed, 19 Feb 2014 12:00:00 EDT</string>
-    <string name="test_image_description">Migratory birds and military aircraft often fly in a V shaped formation. The V formation greatly boosts the efficiency and range of flying birds, because all except the first fly in the upward motion of air called upwash from the wingtip vortices of the bird ahead.</string>
+    <string name="test_image_title">No Title</string>
+    <string name="test_image_date">No date</string>
+    <string name="test_image_description">No description, yet.</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="test_content_description">Nasa image of the day</string>
 

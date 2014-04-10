@@ -59,7 +59,7 @@
                     android:layout_height="wrap_content"
                     android:adjustViewBounds="true"
                     android:contentDescription="@string/test_content_description"
-                    android:src="@drawable/test_image" />
+                    android:src="@drawable/img_no_data" />
 
                 <TextView
                     android:id="@+id/imageDescription"
