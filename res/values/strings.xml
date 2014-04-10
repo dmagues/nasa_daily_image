@@ -17,6 +17,6 @@
     <string name="title_activity_nasa_app">NasaApp</string>
     <string name="title_activity_ed_news">EdNews</string>
     <string name="share_button">Compartir</string>
-    <string name="feed_button">feed_button</string>
+    <string name="feed_button">Feeds</string>
 
 </resources>
