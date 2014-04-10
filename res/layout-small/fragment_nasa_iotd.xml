@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/background" >
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical" >
+
+        <ProgressBar
+	         android:id="@+id/prgBar"
+	         android:layout_width="fill_parent"
+	         android:layout_height="wrap_content"
+	         android:visibility="invisible"
+	         android:layout_marginRight="5dp"
+	         android:indeterminate="true"
+	         style="?android:attr/progressBarStyleHorizontal" />
+        
+        <TextView
+            android:id="@+id/imageTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:text="@string/test_image_title"
+            android:textColor="@color/text"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/imageDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/test_image_date"
+            android:textColor="@color/text" />
+
+        <ImageView
+            android:id="@+id/imageDisplay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/test_content_description"
+            android:src="@drawable/test_image" />
+
+        <TextView
+            android:id="@+id/imageDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/test_image_description"
+            android:textColor="@color/text" />        
+         
+    </LinearLayout>
+
+</ScrollView>

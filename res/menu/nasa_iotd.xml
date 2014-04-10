@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+
+    <item 
+        android:id="@+id/action_refresh"
+        android:showAsAction="ifRoom"
+        android:title="@string/refresh_button"
+        android:icon="@drawable/ic_navigation_refresh"
+        android:orderInCategory="1"
+        />
+    
+    <item 
+        android:id="@+id/action_share"
+        android:showAsAction="ifRoom"
+        android:title="@string/share_button"
+        android:icon="@drawable/ic_share"
+        android:orderInCategory="2"
+        />
+    
+    <item 
+        android:id="@+id/action_wallpaper"
+        android:showAsAction="never"
+        android:title="@string/set_wallpaper_button"
+        android:icon="@drawable/ic_wallpaper"
+        android:orderInCategory="3"
+        />
+    
+    
+    
+</menu>
