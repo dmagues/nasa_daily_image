@@ -34,6 +34,7 @@ public final class R {
         public static final int test_image=0x7f020004;
     }
     public static final class id {
+        public static final int action_feed=0x7f090011;
         public static final int action_refresh=0x7f09000e;
         public static final int action_settings=0x7f09000c;
         public static final int action_share=0x7f09000f;
