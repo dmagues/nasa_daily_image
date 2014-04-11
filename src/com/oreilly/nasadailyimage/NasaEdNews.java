@@ -41,6 +41,7 @@ public class NasaEdNews extends ListFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		handler = new Handler();
+		setHasOptionsMenu(true);
 	}
 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,6 +64,7 @@ public class NasaEdNews extends ListFragment {
 
 	}
 	
+		
 	@Override
 	public boolean onOptionsItemSelected(android.view.MenuItem item) {
 		switch(item.getItemId())
