@@ -18,5 +18,6 @@
     <string name="title_activity_ed_news">EdNews</string>
     <string name="share_button">Compartir</string>
     <string name="feed_button">Feeds</string>
+    <string name="app_id">1234567</string>
 
 </resources>
