@@ -29,6 +29,12 @@ import com.oreilly.nasadailyimage.util.ImageFileCache;
 import com.oreilly.nasadailyimage.util.OnBackgroundTaskListener;
 import com.oreilly.nasadailyimage.util.OnSwipeTouchListener;
 
+import com.facebook.*;
+import com.facebook.widget.FacebookDialog;
+import com.facebook.widget.FacebookDialog.PendingCall;
+import com.facebook.widget.WebDialog;
+import com.facebook.widget.WebDialog.OnCompleteListener;
+
 public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
 
 	private static final String IOTD_STATE = "state";
@@ -38,6 +44,9 @@ public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
 	private static final String IOTD_IMAGEURL = "image";
 	private static final String IOTD_INDEX = "index";
 	private static final String TAG = "NasaIotd";
+	
+	// FACEBOOK SETUP
+	private UiLifecycleHelper uiHelper;
 	
 	Bundle iotdBundle;
 	IotdHandler iotdHandler;	
@@ -52,13 +61,17 @@ public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);		
 		handler =  new Handler();
-		setHasOptionsMenu(true);
+		setHasOptionsMenu(true);		
 		
 		if(savedInstanceState!= null)
 		{
 			iotdBundle = savedInstanceState.getBundle(IOTD_STATE);
 			Index = iotdBundle.getInt(IOTD_INDEX);
 		}
+		
+		/* Facebook inicialization */
+		uiHelper = new UiLifecycleHelper(getActivity(), null);
+	    uiHelper.onCreate(savedInstanceState);
 		
 	}
 	
@@ -92,6 +105,8 @@ public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
 				return getGestureDetector().onTouchEvent(event);
 			}
 		});
+		
+		
 				
 		return view;
 	};
@@ -100,6 +115,35 @@ public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.nasa_iotd, menu);
+		
+	};
+	
+	//FACEBOOK SETUP
+	/** Configure a callback handler that's invoked when the share dialog closes and control returns to the calling app
+	 * 
+	 */
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, android.content.Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		
+		uiHelper.onActivityResult(requestCode, resultCode, data, new FacebookDialog.Callback() {
+			
+			@Override
+			public void onError(PendingCall pendingCall, Exception error, Bundle data) {
+				Log.e("Activity", String.format("Error: %s", error.toString()));
+				
+			}
+			
+			@SuppressWarnings("unused")
+			@Override
+			public void onComplete(PendingCall pendingCall, Bundle data) {
+				Log.i("Activity", "Success!");
+				boolean didCancel = FacebookDialog.getNativeDialogDidComplete(data);
+				String completionGesture = FacebookDialog.getNativeDialogCompletionGesture(data);
+				String postId = FacebookDialog.getNativeDialogPostId(data);
+				
+			}
+		});
 		
 	};
 	
@@ -164,35 +208,7 @@ public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
 			download.execute(iotdHandler);
 		}
 		
-		/*
-		
-		dialog = ProgressDialog.show(getActivity(), "Loading", "Loading the Image of the Day");
-		
-		Thread th = new Thread(){
-			@Override
-			public void run()
-			{
-				if (iotdHandler== null){
-						iotdHandler = new IotdHandler(getActivity());}				
-				iotdHandler.processFeed();
-				
-				handler.post(new Runnable() {
-					
-					@Override
-					public void run() {
-						
-						resetDisplay(iotdHandler.getTitle(), iotdHandler.getDate(), iotdHandler.getImage(), iotdHandler.getDescription().toString());
-						image = iotdHandler.getImage();
-						dialog.dismiss();						
-					}
-				});
-				
-			}
-		};
-		
-		th.start();
-			
-		*/
+
 	}
 	
 	
@@ -248,9 +264,73 @@ public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
 
 	private void shareIotd()
 	{
+		if (FacebookDialog.canPresentShareDialog(getActivity().getApplicationContext(), 
+                FacebookDialog.ShareDialogFeature.SHARE_DIALOG)) {
+			// Publish the post using the Share Dialog
+			FacebookDialog shareDialog = new FacebookDialog.ShareDialogBuilder(getActivity())
+	        .setLink("https://developers.facebook.com/android")
+	        .build();
+			uiHelper.trackPendingDialogCall(shareDialog.present());
+		}
+		else
+		{
+			// Fallback. For example, publish the post using the Feed Dialog
+			publishFeedDialog();
+		}
 		
 	}
 	
+	
+	/** To define a new method that invokes the Feed Dialog for the Facebook instance
+	 * 
+	 */
+	private void publishFeedDialog() {
+	    Bundle params = new Bundle();
+	    params.putString("name", "Facebook SDK for Android");
+	    params.putString("caption", "Build great social apps and get more installs.");
+	    params.putString("description", "The Facebook SDK for Android makes it easier and faster to develop Facebook integrated Android apps.");
+	    params.putString("link", "https://developers.facebook.com/android");
+	    params.putString("picture", "https://raw.github.com/fbsamples/ios-3.x-howtos/master/Images/iossdk_logo.png");
+
+	    WebDialog feedDialog = (
+	        new WebDialog.FeedDialogBuilder(getActivity(),
+	            Session.getActiveSession(),
+	            params))
+	        .setOnCompleteListener(new OnCompleteListener() {
+
+	            @Override
+	            public void onComplete(Bundle values, FacebookException error) {
+	                if (error == null) {
+	                    // When the story is posted, echo the success
+	                    // and the post Id.
+	                    final String postId = values.getString("post_id");
+	                    if (postId != null) {
+	                        Toast.makeText(getActivity(),
+	                            "Posted story, id: "+postId,
+	                            Toast.LENGTH_SHORT).show();
+	                    } else {
+	                        // User clicked the Cancel button
+	                        Toast.makeText(getActivity().getApplicationContext(), 
+	                            "Publish cancelled", 
+	                            Toast.LENGTH_SHORT).show();
+	                    }
+	                } else if (error instanceof FacebookOperationCanceledException) {
+	                    // User clicked the "x" button
+	                    Toast.makeText(getActivity().getApplicationContext(), 
+	                        "Publish cancelled", 
+	                        Toast.LENGTH_SHORT).show();
+	                } else {
+	                    // Generic, ex: network error
+	                    Toast.makeText(getActivity().getApplicationContext(), 
+	                        "Error posting story", 
+	                        Toast.LENGTH_SHORT).show();
+	                }
+	            }
+
+	        })
+	        .build();
+	    feedDialog.show();
+	}
 		
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
@@ -275,6 +355,9 @@ public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
 		
 		
 		super.onSaveInstanceState(outState);
+		//FACEBOOK SETUP		
+		uiHelper.onSaveInstanceState(outState); 
+		
 		
 	}
 	
@@ -303,6 +386,26 @@ public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
 			Index = ((Integer)result).intValue();
 		
 	}
+	
+	//FACEBOOK SETUP
+	@Override	
+	public void onResume() {
+		super.onResume();
+		uiHelper.onResume();
+	}
+	
+	@Override
+	public void onPause() {
+		super.onPause();
+		uiHelper.onPause();		
+	}
+	
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		uiHelper.onDestroy();
+	}
+	
 
 
 
