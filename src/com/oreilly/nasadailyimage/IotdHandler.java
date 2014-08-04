@@ -64,7 +64,8 @@ public class IotdHandler extends DefaultHandler {
 		image = null;
 		title = null;
 		description = new StringBuffer();
-		date = null;		
+		date = null;
+		link =  null;
 	}
 	
 	public void processFeed()  {

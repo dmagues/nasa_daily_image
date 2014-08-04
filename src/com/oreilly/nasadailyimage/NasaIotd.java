@@ -47,7 +47,38 @@ public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
 	
 	// FACEBOOK SETUP
 	private UiLifecycleHelper uiHelper;
+	SessionStatusCallback statusCallback = new SessionStatusCallback();
+
+
+
+	private class SessionStatusCallback implements Session.StatusCallback {
+		@Override
+		public void call(Session session, SessionState state, Exception exception) {
+			if (exception != null) {
+				//handleException(exception);
+				Toast.makeText(getActivity(), "Session Error!!", Toast.LENGTH_SHORT).show();
+			}
+			if (state.isOpened()) {
+				//afterLogin();
+				Toast.makeText(getActivity(), "Session Opened!", Toast.LENGTH_SHORT).show();
+				publishFeedDialog();
+			} else if (state.isClosed()) {
+				//afterLogout();
+				Toast.makeText(getActivity(), "Session Closed!", Toast.LENGTH_SHORT).show();
+			}
+		}
+	}
+
+	public void login() {
+		Session session = Session.getActiveSession();
+		if (!session.isOpened() && !session.isClosed()) {
+			session.openForRead(new Session.OpenRequest(this).setCallback(statusCallback));
+		} else {
+			Session.openActiveSession(getActivity(), this, true, statusCallback);
+		}
+	}
 	
+		
 	Bundle iotdBundle;
 	IotdHandler iotdHandler;	
 	Handler handler;
@@ -268,14 +299,15 @@ public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
                 FacebookDialog.ShareDialogFeature.SHARE_DIALOG)) {
 			// Publish the post using the Share Dialog
 			FacebookDialog shareDialog = new FacebookDialog.ShareDialogBuilder(getActivity())
-	        .setLink("https://developers.facebook.com/android")
+			.setName(iotdHandler.getTitle())
+			.setLink(iotdHandler.getLink())	        	        
 	        .build();
 			uiHelper.trackPendingDialogCall(shareDialog.present());
 		}
 		else
 		{
 			// Fallback. For example, publish the post using the Feed Dialog
-			publishFeedDialog();
+			login();			
 		}
 		
 	}
@@ -286,11 +318,11 @@ public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
 	 */
 	private void publishFeedDialog() {
 	    Bundle params = new Bundle();
-	    params.putString("name", "Facebook SDK for Android");
-	    params.putString("caption", "Build great social apps and get more installs.");
-	    params.putString("description", "The Facebook SDK for Android makes it easier and faster to develop Facebook integrated Android apps.");
-	    params.putString("link", "https://developers.facebook.com/android");
-	    params.putString("picture", "https://raw.github.com/fbsamples/ios-3.x-howtos/master/Images/iossdk_logo.png");
+	    params.putString("name", iotdHandler.getTitle());
+	    //params.putString("caption", "Build great social apps and get more installs.");
+	    //params.putString("description", "The Facebook SDK for Android makes it easier and faster to develop Facebook integrated Android apps.");
+	    params.putString("link", iotdHandler.getLink());
+	    //params.putString("picture", "https://raw.github.com/fbsamples/ios-3.x-howtos/master/Images/iossdk_logo.png");
 
 	    WebDialog feedDialog = (
 	        new WebDialog.FeedDialogBuilder(getActivity(),
@@ -306,7 +338,7 @@ public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
 	                    final String postId = values.getString("post_id");
 	                    if (postId != null) {
 	                        Toast.makeText(getActivity(),
-	                            "Posted story, id: "+postId,
+	                            "Posted story, " + iotdHandler.getTitle(),
 	                            Toast.LENGTH_SHORT).show();
 	                    } else {
 	                        // User clicked the Cancel button
