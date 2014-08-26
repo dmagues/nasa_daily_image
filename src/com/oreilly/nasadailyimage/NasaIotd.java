@@ -2,6 +2,7 @@ package com.oreilly.nasadailyimage;
 
 import java.io.IOException;
 
+
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,7 +10,17 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.app.ProgressDialog;
 import android.app.WallpaperManager;
+
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
+import android.util.Base64;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import android.graphics.Bitmap;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 
@@ -103,6 +114,22 @@ public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
 		/* Facebook inicialization */
 		uiHelper = new UiLifecycleHelper(getActivity(), null);
 	    uiHelper.onCreate(savedInstanceState);
+	    
+	    // Add code to print out the key hash
+	    try {
+	        PackageInfo info = getActivity().getPackageManager().getPackageInfo(
+	                "com.oreilly.nasadailyimage", 
+	                PackageManager.GET_SIGNATURES);
+	        for (Signature signature : info.signatures) {
+	            MessageDigest md = MessageDigest.getInstance("SHA");
+	            md.update(signature.toByteArray());
+	            Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+	            }
+	    } catch (NameNotFoundException e) {
+
+	    } catch (NoSuchAlgorithmException e) {
+
+	    }
 		
 	}
 	
@@ -300,7 +327,8 @@ public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
 			// Publish the post using the Share Dialog
 			FacebookDialog shareDialog = new FacebookDialog.ShareDialogBuilder(getActivity())
 			.setName(iotdHandler.getTitle())
-			.setLink(iotdHandler.getLink())	        	        
+			.setLink(iotdHandler.getLink())
+			.setPicture(iotdHandler.getImageUrl())
 	        .build();
 			uiHelper.trackPendingDialogCall(shareDialog.present());
 		}
@@ -322,7 +350,7 @@ public class NasaIotd extends Fragment implements OnBackgroundTaskListener {
 	    //params.putString("caption", "Build great social apps and get more installs.");
 	    //params.putString("description", "The Facebook SDK for Android makes it easier and faster to develop Facebook integrated Android apps.");
 	    params.putString("link", iotdHandler.getLink());
-	    //params.putString("picture", "https://raw.github.com/fbsamples/ios-3.x-howtos/master/Images/iossdk_logo.png");
+	    params.putString("picture", iotdHandler.getImageUrl());
 
 	    WebDialog feedDialog = (
 	        new WebDialog.FeedDialogBuilder(getActivity(),
